@@ -1,6 +1,8 @@
 package com.rawen.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.rawen.models.Category;
@@ -31,8 +33,14 @@ public class QuestionController {
     }
 
     @PostMapping("/add")
-    public Question addQuestion(@RequestBody Question question) {
-        return questionService.addQuestion(question);
+    public ResponseEntity<Question> addQuestion(@RequestBody Question question) {
+        try {
+            Question addedQuestion = questionService.addQuestion(question);
+            return ResponseEntity.status(HttpStatus.CREATED).body(addedQuestion);  // Retourne la question ajoutée avec un code 201
+        } catch (RuntimeException e) {
+            // Si une erreur se produit (ex. catégorie inexistante), retourner un code 400 avec le message d'erreur
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        }
     }
 
     @PutMapping("/update/{id}")

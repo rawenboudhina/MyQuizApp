@@ -25,9 +25,19 @@ public class QuestionService {
     }
 
     public Question addQuestion(Question question) {
-        return questionRepository.save(question);
+        // Vérification de l'existence de la catégorie avant d'ajouter la question
+        if (question.getCategory() != null && question.getCategory().getId() != null) {
+            Optional<Category> category = categoryRepository.findById(question.getCategory().getId());
+            if (category.isPresent()) {
+                question.setCategory(category.get());  // Assigner la catégorie à la question
+                return questionRepository.save(question);  // Sauvegarder la question avec la catégorie
+            } else {
+                throw new RuntimeException("Category not found");  // Si la catégorie n'existe pas, lever une exception
+            }
+        } else {
+            throw new RuntimeException("Category is missing or invalid");  // Si la catégorie est absente ou invalide
+        }
     }
-
     public Question updateQuestion(Long id, Question question) {
         Optional<Question> existingQuestion = questionRepository.findById(id);
         if (existingQuestion.isPresent()) {
